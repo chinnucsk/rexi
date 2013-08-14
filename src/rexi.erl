@@ -17,6 +17,7 @@
 -export([cast/2, cast/3, cast/4, kill/2]).
 -export([reply/1, sync_reply/1, sync_reply/2]).
 -export([async_server_call/2, async_server_call/3]).
+-export([stream_init/0, stream_init/1]).
 -export([stream/1, stream/2, stream/3, stream_ack/1, stream_ack/2]).
 
 -include("rexi.hrl").
@@ -116,6 +117,17 @@ sync_reply(Reply, Timeout) ->
     after Timeout ->
         timeout
     end.
+
+%% @equiv stream(300000)
+stream_init() ->
+    stream(300000).
+
+%% @doc Initialize an RPC stream sending messages back to the rexi
+%% coordinator process. Blocks until a response is received that
+%% indicates if the worker should continue or abort.
+-spec stream_init() -> ok | stop | timeout.
+stream_init(Timeout) ->
+    sync_reply(rexi_STREAM_INIT, Timeout).
 
 %% @equiv stream(Msg, 100, 300000)
 stream(Msg) ->
